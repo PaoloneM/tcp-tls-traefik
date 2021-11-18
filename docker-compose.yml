@@ -4,6 +4,8 @@ services:
 
   tcptls1:
     image: tcptls
+    deploy:
+      replicas: 2
     build:
       context: .
       dockerfile: ./Dockerfile
