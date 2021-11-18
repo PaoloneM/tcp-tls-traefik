@@ -12,8 +12,6 @@ s.bind((HOST, PORT))
 print('Waiting for a Connection..')
 s.listen(5)
 
-conn, addr = s.accept()
-
 def threaded_client(conn, addr):
 
   print('Connected by ', addr)
