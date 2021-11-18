@@ -1,0 +1,54 @@
+version: '3.4'
+
+services:
+
+  tcptls1:
+    image: tcptls
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    labels:
+      traefik.enable: true
+      traefik.tcp.routers.tcptls1.rule: HostSNI(`tcptls1.mysite.com`)
+      traefik.tcp.routers.tcptls1.entrypoints: websecure
+      traefik.tcp.services.tcptls1.loadbalancer.server.port: "50007"
+      traefik.tcp.routers.tcptls1.tls: true
+    restart: always
+    depends_on:
+      traefik:
+        condition: service_healthy
+
+  tcptls2:
+    image: tcptls
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    labels:
+      traefik.enable: true
+      traefik.tcp.routers.tcptls2.rule: HostSNI(`tcptls2.mysite.com`)
+      traefik.tcp.routers.tcptls2.entrypoints: websecure
+      traefik.tcp.services.tcptls2.loadbalancer.server.port: "50007"
+      traefik.tcp.routers.tcptls2.tls: true
+    restart: always
+    depends_on:
+      traefik:
+        condition: service_healthy
+
+  traefik:
+    image: "traefik:v2.4"
+    healthcheck:
+      test: 
+        - CMD
+        - traefik
+        - healthcheck
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+      - ./.certs/:/certs/
+      - /var/run/docker.sock:/var/run/docker.sock
